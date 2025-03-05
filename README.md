@@ -22,7 +22,7 @@ A strategic multiplayer game where players compete through explosive chain react
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/rahulgaur608/Chain-Reaction-Game-.git
 ```
 
 2. Navigate to the project directory:
