@@ -780,7 +780,6 @@ const PLAYER_COLORS = {
   1: '#ff5252', // Red
   2: '#4285f4', // Blue
   3: '#8bc34a', // Green
-  4: '#ffeb3b', // Yellow
 };
 
 const MoonIcon = () => (
@@ -876,7 +875,7 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
     { label: '15x10', rows: 15, cols: 10 }
   ];
 
-  const playerCountOptions = [2, 3, 4];
+  const playerCountOptions = [2, 3];
 
   const handleMouseMove = useCallback((e) => {
     const { clientX, clientY } = e;
@@ -950,12 +949,12 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
       >
         {theme === 'light' ? <MoonIcon /> : <SunIcon />}
       </ThemeToggleButton>
-      {[...Array(4)].map((_, i) => (
+      {[...Array(3)].map((_, i) => (
         <FloatingOrb
           key={i}
           size={60 - i * 10}
-          color={PLAYER_COLORS[(i % 4) + 1]}
-          colorDark={PLAYER_COLORS[(i % 4) + 1]}
+          color={PLAYER_COLORS[(i % 3) + 1]}
+          colorDark={PLAYER_COLORS[(i % 3) + 1]}
           duration={4 + i}
           delay={i}
           top={20 + (mousePosition.y * 0.1) + (i * 10)}
@@ -1055,8 +1054,8 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
                   <ul>
                     <li>Players take turns placing one orb in any cell</li>
                     <li>You can only place orbs in empty cells or cells you own</li>
-                    <li>Each player has their own color (Red, Blue, Green, or Yellow)</li>
-                    <li>The game supports 2-4 players</li>
+                    <li>Each player has their own color (Red, Blue, or Green)</li>
+                    <li>The game supports 2-3 players</li>
                   </ul>
                 </RuleItem>
 
