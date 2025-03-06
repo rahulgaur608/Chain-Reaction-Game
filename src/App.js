@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Game from './components/Game';
 import WelcomePage from './components/WelcomePage';
+import FloatingBubblesPage from './components/FloatingBubblesPage';
 import './App.css';
 
 const AppContainer = styled.div`
@@ -15,15 +16,24 @@ function App() {
   const [gameState, setGameState] = useState({
     isPlaying: false,
     gridSize: { rows: 6, cols: 6 },
-    playerCount: 2
+    playerCount: 2,
+    showWelcome: true
   });
   const [theme, setTheme] = useState('dark');
 
   const handleEnterGame = (settings) => {
     setGameState({
       isPlaying: true,
-      gridSize: settings.gridSize,
-      playerCount: settings.playerCount
+      gridSize: settings?.gridSize || gameState.gridSize,
+      playerCount: settings?.playerCount || gameState.playerCount,
+      showWelcome: false
+    });
+  };
+
+  const handleStartClick = () => {
+    setGameState({
+      ...gameState,
+      showWelcome: false
     });
   };
 
@@ -33,6 +43,13 @@ function App() {
         <Game 
           initialGridSize={gameState.gridSize}
           initialPlayerCount={gameState.playerCount}
+          theme={theme}
+          setTheme={setTheme}
+        />
+      ) : gameState.showWelcome ? (
+        <FloatingBubblesPage 
+          title="Chain Reaction"
+          onEnter={handleStartClick}
           theme={theme}
           setTheme={setTheme}
         />
