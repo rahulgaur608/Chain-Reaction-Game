@@ -147,37 +147,32 @@ const darkTheme = {
 };
 
 const Container = styled.div`
+  min-height: 100vh;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  padding: 20px;
-  background: ${props => props.theme === 'light' ? lightTheme.background : darkTheme.background};
-  color: ${props => props.theme === 'light' ? lightTheme.text : darkTheme.text};
+  justify-content: center;
   position: relative;
-  overflow: hidden;
-  perspective: 1000px;
+  background: ${props => props.theme === 'light' ? '#f5f5f5' : '#282c34'};
   transition: all 0.3s ease;
 `;
 
 const Content = styled.div`
+  max-width: 800px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 30px;
+  background: ${props => props.theme === 'light' 
+    ? 'linear-gradient(145deg, #ffffff, #e6e6e6)' 
+    : 'linear-gradient(145deg, #2c3138, #23272e)'};
+  box-shadow: ${props => props.theme === 'light'
+    ? '20px 20px 60px rgba(0, 0, 0, 0.1), -20px -20px 60px rgba(255, 255, 255, 0.8)'
+    : '20px 20px 60px rgba(0, 0, 0, 0.3), -20px -20px 60px rgba(255, 255, 255, 0.05)'};
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 1200px;
-  width: 100%;
-  z-index: 1;
-  margin: 0 auto;
-  gap: 20px;
-  padding: 30px;
-  background: ${props => props.theme === 'light' ? 
-    `linear-gradient(145deg, ${lightTheme.gradientStart}, ${lightTheme.gradientEnd})` : 
-    `linear-gradient(145deg, ${darkTheme.gradientStart}, ${darkTheme.gradientEnd})`};
-  border-radius: 30px;
-  box-shadow: ${props => props.theme === 'light' ?
-    `20px 20px 60px ${lightTheme.shadowDark}, -20px -20px 60px ${lightTheme.shadowLight}` :
-    `20px 20px 60px ${darkTheme.shadowDark}, -20px -20px 60px ${darkTheme.shadowLight}`};
+  transition: all 0.3s ease;
 `;
 
 const Title = styled.h1`
@@ -789,22 +784,26 @@ const PLAYER_COLORS = {
 };
 
 const MoonIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+      stroke="#61dafb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 const SunIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5"></circle>
-    <line x1="12" y1="1" x2="12" y2="3"></line>
-    <line x1="12" y1="21" x2="12" y2="23"></line>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-    <line x1="1" y1="12" x2="3" y2="12"></line>
-    <line x1="21" y1="12" x2="23" y2="12"></line>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="5" stroke="#61dafb" strokeWidth="2" />
+    <path
+      d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+      stroke="#61dafb"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
@@ -812,46 +811,29 @@ const ThemeToggleButton = styled.button`
   position: fixed;
   top: 20px;
   right: 20px;
-  padding: 15px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: ${props => props.theme === 'light' ? 
-    `linear-gradient(145deg, ${lightTheme.gradientStart}, ${lightTheme.gradientEnd})` : 
-    `linear-gradient(145deg, ${darkTheme.gradientStart}, ${darkTheme.gradientEnd})`};
-  border: none;
-  cursor: pointer;
-  box-shadow: ${props => props.theme === 'light' ?
-    `8px 8px 16px ${lightTheme.shadowDark}, -8px -8px 16px ${lightTheme.shadowLight}` :
-    `8px 8px 16px ${darkTheme.shadowDark}, -8px -8px 16px ${darkTheme.shadowLight}`};
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme === 'light' ? lightTheme.text : darkTheme.text};
-  z-index: 1000;
-  width: 50px;
-  height: 50px;
-
-  svg {
-    transition: all 0.3s ease;
-    transform-origin: center;
-  }
-
+  z-index: 100;
+  background: ${props => props.theme === 'light'
+    ? 'linear-gradient(145deg, #ffffff, #e6e6e6)'
+    : 'linear-gradient(145deg, #2c3138, #23272e)'};
+  box-shadow: ${props => props.theme === 'light'
+    ? '5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff'
+    : '5px 5px 10px #1a1d22, -5px -5px 10px #343b46'};
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
   &:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: ${props => props.theme === 'light' ?
-      `12px 12px 24px ${lightTheme.shadowDark}, -12px -12px 24px ${lightTheme.shadowLight}` :
-      `12px 12px 24px ${darkTheme.shadowDark}, -12px -12px 24px ${darkTheme.shadowLight}`};
-
-    svg {
-      transform: rotate(15deg) scale(1.1);
-    }
+    transform: rotate(15deg) scale(1.1);
   }
-
+  
   &:active {
     transform: scale(0.95);
-    box-shadow: ${props => props.theme === 'light' ?
-      `inset 4px 4px 8px ${lightTheme.shadowDark}, inset -4px -4px 8px ${lightTheme.shadowLight}` :
-      `inset 4px 4px 8px ${darkTheme.shadowDark}, inset -4px -4px 8px ${darkTheme.shadowLight}`};
   }
 `;
 

@@ -12,8 +12,9 @@ const PageContainer = styled.div`
   justify-content: center;
   overflow: hidden;
   background: ${props => props.theme === 'light' 
-    ? 'linear-gradient(to bottom right, #e0f2fe, #f3e8ff)' 
-    : 'linear-gradient(to bottom right, #1e3a8a, #581c87)'};
+    ? '#f5f5f5' 
+    : '#282c34'};
+  transition: background 0.3s ease;
 `;
 
 const ContentContainer = styled.div`
@@ -56,8 +57,8 @@ const WordSpan = styled.span`
 const LetterSpan = styled(motion.span)`
   display: inline-block;
   background: ${props => props.theme === 'light'
-    ? 'linear-gradient(to right, #2563eb, #9333ea)'
-    : 'linear-gradient(to right, #93c5fd, #d8b4fe)'};
+    ? 'linear-gradient(to right, #61dafb, #4fa8cc)'
+    : 'linear-gradient(to right, #61dafb, #2c3138)'};
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -67,17 +68,21 @@ const ButtonContainer = styled.div`
   display: inline-block;
   position: relative;
   background: ${props => props.theme === 'light'
-    ? 'linear-gradient(to bottom, rgba(96, 165, 250, 0.3), rgba(168, 85, 247, 0.3))'
-    : 'linear-gradient(to bottom, rgba(37, 99, 235, 0.3), rgba(126, 34, 206, 0.3))'};
+    ? 'rgba(97, 218, 251, 0.3)'
+    : 'rgba(97, 218, 251, 0.2)'};
   padding: 1px;
   border-radius: 1rem;
   backdrop-filter: blur(8px);
   overflow: hidden;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: ${props => props.theme === 'light'
+    ? '5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px rgba(255, 255, 255, 0.8)'
+    : '5px 5px 10px rgba(0, 0, 0, 0.3), -5px -5px 10px rgba(255, 255, 255, 0.05)'};
   transition: box-shadow 0.3s ease;
   
   &:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: ${props => props.theme === 'light'
+      ? '8px 8px 15px rgba(0, 0, 0, 0.1), -8px -8px 15px rgba(255, 255, 255, 0.8)'
+      : '8px 8px 15px rgba(0, 0, 0, 0.4), -8px -8px 15px rgba(255, 255, 255, 0.05)'};
   }
 `;
 
@@ -89,17 +94,17 @@ const StyledButton = styled.button`
   backdrop-filter: blur(4px);
   background: ${props => props.theme === 'light'
     ? 'rgba(255, 255, 255, 0.8)'
-    : 'rgba(0, 0, 0, 0.8)'};
-  color: ${props => props.theme === 'light' ? '#2563eb' : '#93c5fd'};
+    : 'rgba(40, 44, 52, 0.8)'};
+  color: ${props => props.theme === 'light' ? '#4fa8cc' : '#61dafb'};
   transition: all 0.3s ease;
   border: 1px solid ${props => props.theme === 'light'
-    ? 'rgba(191, 219, 254, 0.5)'
-    : 'rgba(30, 64, 175, 0.5)'};
+    ? 'rgba(97, 218, 251, 0.3)'
+    : 'rgba(97, 218, 251, 0.2)'};
   
   &:hover {
     background: ${props => props.theme === 'light'
       ? 'rgba(255, 255, 255, 0.9)'
-      : 'rgba(0, 0, 0, 0.9)'};
+      : 'rgba(40, 44, 52, 0.9)'};
     transform: translateY(-2px);
   }
 `;
@@ -137,10 +142,10 @@ const ThemeToggleButton = styled.button`
   z-index: 100;
   background: ${props => props.theme === 'light'
     ? 'linear-gradient(145deg, #ffffff, #e6e6e6)'
-    : 'linear-gradient(145deg, #2d3748, #1a202c)'};
+    : 'linear-gradient(145deg, #2c3138, #23272e)'};
   box-shadow: ${props => props.theme === 'light'
     ? '5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff'
-    : '5px 5px 10px #0d1117, -5px -5px 10px #3a4a5c'};
+    : '5px 5px 10px #1a1d22, -5px -5px 10px #343b46'};
   border: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -159,7 +164,7 @@ const MoonIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-      stroke="#93c5fd"
+      stroke="#61dafb"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -169,10 +174,10 @@ const MoonIcon = () => (
 
 const SunIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="5" stroke="#2563eb" strokeWidth="2" />
+    <circle cx="12" cy="12" r="5" stroke="#61dafb" strokeWidth="2" />
     <path
       d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-      stroke="#2563eb"
+      stroke="#61dafb"
       strokeWidth="2"
       strokeLinecap="round"
     />
@@ -213,7 +218,7 @@ function FloatingBubbles() {
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       size: Math.random() * 20 + 5,
-      color: `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},0.3)`,
+      color: `rgba(97, 218, 251, ${Math.random() * 0.3 + 0.1})`,
     }));
     setBubbles(newBubbles);
   }, []);
