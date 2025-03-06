@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Board from './Board';
 import GameControls from './GameControls';
 import PerformanceMonitor from './PerformanceMonitor';
+import { usePlayer } from '../context/PlayerContext';
 
 const GameContainer = styled.div`
   display: flex;
@@ -234,7 +235,14 @@ const getPlayerColor = (playerNumber) => {
   return PLAYER_COLORS[playerNumber] || '#ffffff';
 };
 
-const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
+const Game = ({ 
+  initialGridSize, 
+  initialPlayerCount, 
+  theme, 
+  setTheme,
+  isMultiplayer = false,
+  room = null
+}) => {
   // Default grid size
   const [gridSize, setGridSize] = useState(initialGridSize || { rows: 6, cols: 6 });
   const [grid, setGrid] = useState([]);
@@ -249,6 +257,14 @@ const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
   const cellUpdateCountRef = useRef(0);
   const performanceMetricsRef = useRef(null);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isExploding, setIsExploding] = useState(false);
+  const [explodingCells, setExplodingCells] = useState([]);
+
+  // Get player context for multiplayer
+  const { playerId, makeMove, currentRoom } = usePlayer();
+  
+  // Use room from props or from context
+  const gameRoom = room || currentRoom;
 
   // Calculate the maximum capacity for a cell based on its position
   const getMaxCapacity = (row, col) => {
@@ -438,36 +454,59 @@ const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
     togglePlayer();
   }, [currentPlayer, gridSize.rows, gridSize.cols, capacityMap, getAdjacentCells]);
 
-  // Optimize cell click handler
-  const handleCellClick = useCallback((row, col) => {
-    if (gameOver || isAnimating) return;
-
-    const cell = grid[row][col];
-    const maxCapacity = capacityMap[row][col];
+  // Handle cell click
+  const handleCellClick = (row, col) => {
+    if (gameOver || isExploding) return;
     
-    // Check if the move is valid
-    if (cell.owner !== 0 && cell.owner !== currentPlayer) return;
-    if (cell.count + 1 > maxCapacity) return;
-
-    // Update the grid with the new orb
-    const newGrid = grid.map(row => [...row]);
-    newGrid[row][col] = {
-      owner: currentPlayer,
-      count: cell.count + 1,
-    };
-
-    // Check if the cell will explode
-    if (newGrid[row][col].count >= maxCapacity) {
-      setIsAnimating(true);
-      setGrid(newGrid);
-      setTimeout(() => {
-        processExplosions(newGrid, row, col);
-      }, 300);
+    // In multiplayer mode, check if it's this player's turn
+    if (isMultiplayer) {
+      // Find player index in the room
+      const playerIndex = gameRoom?.players.findIndex(p => p.id === playerId);
+      
+      // Check if it's this player's turn
+      if (playerIndex === undefined || playerIndex !== gameRoom?.gameState.currentPlayer) {
+        console.log("Not your turn");
+        return;
+      }
+      
+      // Send move to server
+      makeMove({
+        row,
+        col
+      });
+      
+      // The game state will be updated via socket
+      return;
+    }
+    
+    // Local game logic
+    const cell = grid[row][col];
+    
+    // Check if the cell is empty or owned by the current player
+    if (cell && cell.player !== null && cell.player !== currentPlayer) {
+      return;
+    }
+    
+    // Add orb to the cell
+    const newGrid = [...grid];
+    if (!newGrid[row][col]) {
+      newGrid[row][col] = { player: currentPlayer, orbs: 1 };
     } else {
-      setGrid(newGrid);
+      newGrid[row][col].player = currentPlayer;
+      newGrid[row][col].orbs += 1;
+    }
+    
+    setGrid(newGrid);
+    
+    // Check if the cell should explode
+    const maxOrbs = getMaxCapacity(row, col);
+    if (newGrid[row][col].orbs >= maxOrbs) {
+      setExplodingCells([{ row, col }]);
+      setIsExploding(true);
+    } else {
       togglePlayer();
     }
-  }, [gameOver, isAnimating, grid, currentPlayer, capacityMap, processExplosions]);
+  };
 
   // Toggle between players
   const togglePlayer = () => {
@@ -506,6 +545,27 @@ const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
+
+  // Listen for game state updates in multiplayer mode
+  useEffect(() => {
+    if (isMultiplayer && gameRoom?.gameState) {
+      // Update grid from server
+      if (gameRoom.gameState.grid && gameRoom.gameState.grid.length > 0) {
+        setGrid(gameRoom.gameState.grid);
+      }
+      
+      // Update current player from server
+      if (gameRoom.gameState.currentPlayer !== undefined) {
+        setCurrentPlayer(gameRoom.gameState.currentPlayer);
+      }
+      
+      // Update game status
+      if (gameRoom.gameState.status === 'finished' && gameRoom.gameState.winner) {
+        setGameOver(true);
+        setWinner(gameRoom.gameState.winner);
+      }
+    }
+  }, [isMultiplayer, gameRoom]);
 
   return (
     <GameContainer theme={theme}>
@@ -560,8 +620,51 @@ const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
         isVisible={showPerformanceMonitor}
         theme={theme}
       />
+      
+      {/* Add multiplayer indicator */}
+      {isMultiplayer && (
+        <MultiplayerInfo theme={theme}>
+          <div>Multiplayer Game</div>
+          <div>Room: {gameRoom?.name || 'Unknown'}</div>
+          <div>
+            Players: 
+            {gameRoom?.players.map((player, index) => (
+              <PlayerName 
+                key={player.id} 
+                active={index === currentPlayer}
+                color={PLAYER_COLORS[index + 1]}
+              >
+                {player.name}
+              </PlayerName>
+            ))}
+          </div>
+        </MultiplayerInfo>
+      )}
     </GameContainer>
   );
 };
+
+// Add styled components for multiplayer UI
+const MultiplayerInfo = styled.div`
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: ${props => props.theme === 'light' 
+    ? 'rgba(255, 255, 255, 0.7)' 
+    : 'rgba(44, 49, 56, 0.7)'};
+  box-shadow: ${props => props.theme === 'light'
+    ? '5px 5px 10px rgba(0, 0, 0, 0.05), -5px -5px 10px rgba(255, 255, 255, 0.5)'
+    : '5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.02)'};
+`;
+
+const PlayerName = styled.span`
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: ${props => props.active ? props.color : 'transparent'};
+  color: ${props => props.active ? 'white' : props.color};
+  font-weight: ${props => props.active ? 'bold' : 'normal'};
+  transition: all 0.3s ease;
+`;
 
 export default Game; 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import MultiplayerLobby from './MultiplayerLobby';
 
 const pulse = keyframes`
   0%, 100% {
@@ -644,6 +645,13 @@ const Button = styled.button`
   }
 `;
 
+const MultiplayerButton = styled(Button)`
+  background: ${props => props.theme === 'light' 
+    ? 'linear-gradient(145deg, #ff9800, #f57c00)' 
+    : 'linear-gradient(145deg, #ff9800, #e65100)'};
+  margin-top: 15px;
+`;
+
 const HowToPlaySection = styled.div`
   margin-top: 20px;
   width: 100%;
@@ -788,6 +796,7 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
   const [selectedPlayerCount, setSelectedPlayerCount] = useState(2);
   const [activeCell, setActiveCell] = useState(null);
   const [showRules, setShowRules] = useState(false);
+  const [showMultiplayer, setShowMultiplayer] = useState(false);
 
   const gridSizeOptions = [
     { label: '6x6', rows: 6, cols: 6 },
@@ -803,8 +812,17 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
   const handleStartGame = () => {
     onEnter({
       gridSize: selectedGridSize,
-      playerCount: selectedPlayerCount
+      playerCount: selectedPlayerCount,
+      isMultiplayer: false
     });
+  };
+
+  const handleMultiplayerClick = () => {
+    setShowMultiplayer(true);
+  };
+
+  const handleBackFromMultiplayer = () => {
+    setShowMultiplayer(false);
   };
 
   const getCellCapacity = (row, col, rows, cols) => {
@@ -862,133 +880,149 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
         <TitleSubtext theme={theme}>Strategic Multiplayer Game</TitleSubtext>
         
         <MainContent>
-          <SettingsSection theme={theme}>
-            <SettingsGrid>
-              <ControlSection theme={theme}>
-                <SectionTitle>Grid Size</SectionTitle>
-                <GridPreview rows={selectedGridSize.rows} cols={selectedGridSize.cols}>
-                  {renderGridPreview()}
-                </GridPreview>
-                <OptionsButtons>
-                  {gridSizeOptions.map((size) => (
-                    <OptionButton
-                      key={size.label}
-                      active={selectedGridSize.rows === size.rows && selectedGridSize.cols === size.cols}
-                      onClick={() => setSelectedGridSize({ rows: size.rows, cols: size.cols })}
-                      theme={theme}
-                    >
-                      {size.label}
-                    </OptionButton>
-                  ))}
-                </OptionsButtons>
-              </ControlSection>
-
-              <ControlSection theme={theme}>
-                <SectionTitle>Players</SectionTitle>
-                <PlayerColors>
-                  {[...Array(selectedPlayerCount)].map((_, index) => (
-                    <PlayerColorButton
-                      key={index + 1}
-                      color={PLAYER_COLORS[index + 1]}
-                      active={true}
-                      theme={theme}
-                    >
-                      <ColorIndicator color={PLAYER_COLORS[index + 1]} />
-                      <PlayerName>Player {index + 1}</PlayerName>
-                    </PlayerColorButton>
-                  ))}
-                </PlayerColors>
-                <OptionsButtons>
-                  {playerCountOptions.map((count) => (
-                    <OptionButton
-                      key={count}
-                      active={selectedPlayerCount === count}
-                      onClick={() => setSelectedPlayerCount(count)}
-                      theme={theme}
-                    >
-                      {count} Players
-                    </OptionButton>
-                  ))}
-                </OptionsButtons>
-              </ControlSection>
-            </SettingsGrid>
-          </SettingsSection>
-
-          <ButtonContainer>
-            <Button 
-              onClick={handleStartGame}
+          {showMultiplayer ? (
+            <MultiplayerLobby 
               theme={theme}
-            >
-              Start Game
-            </Button>
-            <Button 
-              onClick={() => setShowRules(!showRules)}
-              theme={theme}
-            >
-              {showRules ? 'Hide Rules' : 'Show Rules'}
-            </Button>
-          </ButtonContainer>
+              onBack={handleBackFromMultiplayer}
+              onStartGame={onEnter}
+            />
+          ) : (
+            <>
+              <SettingsSection theme={theme}>
+                <SettingsGrid>
+                  <ControlSection theme={theme}>
+                    <SectionTitle>Grid Size</SectionTitle>
+                    <GridPreview rows={selectedGridSize.rows} cols={selectedGridSize.cols}>
+                      {renderGridPreview()}
+                    </GridPreview>
+                    <OptionsButtons>
+                      {gridSizeOptions.map((size) => (
+                        <OptionButton
+                          key={size.label}
+                          active={selectedGridSize.rows === size.rows && selectedGridSize.cols === size.cols}
+                          onClick={() => setSelectedGridSize({ rows: size.rows, cols: size.cols })}
+                          theme={theme}
+                        >
+                          {size.label}
+                        </OptionButton>
+                      ))}
+                    </OptionsButtons>
+                  </ControlSection>
 
-          {showRules && (
-            <HowToPlaySection theme={theme}>
-              <Subtitle>How to Play</Subtitle>
-              <Text>
-                Chain Reaction is a strategic multiplayer game where players compete to control the board through explosive chain reactions. Master the art of positioning and timing to eliminate your opponents!
-              </Text>
-              
-              <RulesList>
-                <RuleItem color="#4285f4" theme={theme}>
-                  <h4>Cell Capacities</h4>
-                  Each cell has a maximum capacity based on its position:
-                  <ul>
-                    <li>Corner cells (2 neighbors): Max 2 orbs</li>
-                    <li>Edge cells (3 neighbors): Max 3 orbs</li>
-                    <li>Center cells (4 neighbors): Max 4 orbs</li>
-                  </ul>
-                </RuleItem>
+                  <ControlSection theme={theme}>
+                    <SectionTitle>Players</SectionTitle>
+                    <PlayerColors>
+                      {[...Array(selectedPlayerCount)].map((_, index) => (
+                        <PlayerColorButton
+                          key={index + 1}
+                          color={PLAYER_COLORS[index + 1]}
+                          active={true}
+                          theme={theme}
+                        >
+                          <ColorIndicator color={PLAYER_COLORS[index + 1]} />
+                          <PlayerName>Player {index + 1}</PlayerName>
+                        </PlayerColorButton>
+                      ))}
+                    </PlayerColors>
+                    <OptionsButtons>
+                      {playerCountOptions.map((count) => (
+                        <OptionButton
+                          key={count}
+                          active={selectedPlayerCount === count}
+                          onClick={() => setSelectedPlayerCount(count)}
+                          theme={theme}
+                        >
+                          {count} Players
+                        </OptionButton>
+                      ))}
+                    </OptionsButtons>
+                  </ControlSection>
+                </SettingsGrid>
+              </SettingsSection>
 
-                <RuleItem color="#ff5252" theme={theme}>
-                  <h4>Basic Gameplay</h4>
-                  <ul>
-                    <li>Players take turns placing one orb in any cell</li>
-                    <li>You can only place orbs in empty cells or cells you own</li>
-                    <li>Each player has their own color (Red, Blue, Green, or Yellow)</li>
-                    <li>The game supports 2-4 players</li>
-                  </ul>
-                </RuleItem>
+              <ButtonContainer>
+                <Button 
+                  onClick={handleStartGame}
+                  theme={theme}
+                >
+                  Start Game
+                </Button>
+                <Button 
+                  onClick={() => setShowRules(!showRules)}
+                  theme={theme}
+                >
+                  {showRules ? 'Hide Rules' : 'Show Rules'}
+                </Button>
+                <MultiplayerButton 
+                  onClick={handleMultiplayerClick}
+                  theme={theme}
+                >
+                  Play Online
+                </MultiplayerButton>
+              </ButtonContainer>
 
-                <RuleItem color="#8bc34a" theme={theme}>
-                  <h4>Chain Reactions</h4>
-                  <ul>
-                    <li>When a cell reaches its capacity, it explodes</li>
-                    <li>Explosion sends one orb to each adjacent cell (up, down, left, right)</li>
-                    <li>Adjacent cells become owned by the player who triggered the explosion</li>
-                    <li>If any receiving cell reaches its capacity, it also explodes</li>
-                    <li>This continues until no more cells are at capacity</li>
-                  </ul>
-                </RuleItem>
+              {showRules && (
+                <HowToPlaySection theme={theme}>
+                  <Subtitle>How to Play</Subtitle>
+                  <Text>
+                    Chain Reaction is a strategic multiplayer game where players compete to control the board through explosive chain reactions. Master the art of positioning and timing to eliminate your opponents!
+                  </Text>
+                  
+                  <RulesList>
+                    <RuleItem color="#4285f4" theme={theme}>
+                      <h4>Cell Capacities</h4>
+                      Each cell has a maximum capacity based on its position:
+                      <ul>
+                        <li>Corner cells (2 neighbors): Max 2 orbs</li>
+                        <li>Edge cells (3 neighbors): Max 3 orbs</li>
+                        <li>Center cells (4 neighbors): Max 4 orbs</li>
+                      </ul>
+                    </RuleItem>
 
-                <RuleItem color="#ffeb3b" theme={theme}>
-                  <h4>Strategy Tips</h4>
-                  <ul>
-                    <li>Watch for critical cells (one orb away from explosion)</li>
-                    <li>Use corner and edge cells strategically due to lower capacity</li>
-                    <li>Create chain reactions to convert multiple opponent cells</li>
-                    <li>Protect your critical mass cells from opponent takeovers</li>
-                    <li>Plan multiple moves ahead to set up combinations</li>
-                  </ul>
-                </RuleItem>
+                    <RuleItem color="#ff5252" theme={theme}>
+                      <h4>Basic Gameplay</h4>
+                      <ul>
+                        <li>Players take turns placing one orb in any cell</li>
+                        <li>You can only place orbs in empty cells or cells you own</li>
+                        <li>Each player has their own color (Red, Blue, Green, or Yellow)</li>
+                        <li>The game supports 2-4 players</li>
+                      </ul>
+                    </RuleItem>
 
-                <RuleItem color="#61dafb" theme={theme}>
-                  <h4>Winning the Game</h4>
-                  <ul>
-                    <li>Eliminate all other players' orbs from the board to win</li>
-                    <li>A player is eliminated when they have no orbs left</li>
-                    <li>The last player with orbs on the board wins</li>
-                  </ul>
-                </RuleItem>
-              </RulesList>
-            </HowToPlaySection>
+                    <RuleItem color="#8bc34a" theme={theme}>
+                      <h4>Chain Reactions</h4>
+                      <ul>
+                        <li>When a cell reaches its capacity, it explodes</li>
+                        <li>Explosion sends one orb to each adjacent cell (up, down, left, right)</li>
+                        <li>Adjacent cells become owned by the player who triggered the explosion</li>
+                        <li>If any receiving cell reaches its capacity, it also explodes</li>
+                        <li>This continues until no more cells are at capacity</li>
+                      </ul>
+                    </RuleItem>
+
+                    <RuleItem color="#ffeb3b" theme={theme}>
+                      <h4>Strategy Tips</h4>
+                      <ul>
+                        <li>Watch for critical cells (one orb away from explosion)</li>
+                        <li>Use corner and edge cells strategically due to lower capacity</li>
+                        <li>Create chain reactions to convert multiple opponent cells</li>
+                        <li>Protect your critical mass cells from opponent takeovers</li>
+                        <li>Plan multiple moves ahead to set up combinations</li>
+                      </ul>
+                    </RuleItem>
+
+                    <RuleItem color="#61dafb" theme={theme}>
+                      <h4>Winning the Game</h4>
+                      <ul>
+                        <li>Eliminate all other players' orbs from the board to win</li>
+                        <li>A player is eliminated when they have no orbs left</li>
+                        <li>The last player with orbs on the board wins</li>
+                      </ul>
+                    </RuleItem>
+                  </RulesList>
+                </HowToPlaySection>
+              )}
+            </>
           )}
         </MainContent>
       </Content>
