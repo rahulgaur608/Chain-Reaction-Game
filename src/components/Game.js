@@ -226,6 +226,7 @@ const PLAYER_COLORS = {
   1: '#ff5252', // Red
   2: '#4285f4', // Blue
   3: '#8bc34a', // Green
+  4: '#ffeb3b', // Yellow
 };
 
 // Get player color by player number
@@ -241,7 +242,7 @@ const Game = ({ initialGridSize, initialPlayerCount, theme, setTheme }) => {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [playerCount, setPlayerCount] = useState(Math.min(initialPlayerCount || 2, 3)); // Default to 2 players, max 3
+  const [playerCount, setPlayerCount] = useState(initialPlayerCount || 2); // Default to 2 players
   const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const renderTimeRef = useRef(0);

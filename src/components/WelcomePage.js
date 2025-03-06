@@ -1,14 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-
-const float = keyframes`
-  0%, 100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg) scale(1.1);
-  }
-`;
 
 const pulse = keyframes`
   0%, 100% {
@@ -61,15 +52,6 @@ const ripple = keyframes`
   100% {
     transform: scale(1.5);
     opacity: 0;
-  }
-`;
-
-const bounce = keyframes`
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-15px) scale(1.1);
   }
 `;
 
@@ -469,14 +451,14 @@ const PlayerColorButton = styled.div`
         '8px 8px 16px #d1d1d1, -8px -8px 16px #ffffff' :
         '8px 8px 16px #1c1f22, -8px -8px 16px #34393f'};
     
-    &::after {
+    &::before {
       content: '';
       position: absolute;
       top: -5px;
       left: -5px;
       right: -5px;
       bottom: -5px;
-      background: ${props.color}20;
+      background: ${props => props.color}40;
       border-radius: inherit;
       z-index: -1;
       animation: ${ripple} 2s ease-out infinite;
@@ -543,65 +525,6 @@ const PlayerName = styled.span`
     '1px 1px 2px #1c1f22, -1px -1px 2px #34393f'};
 `;
 
-const FloatingOrb = styled.div`
-  position: absolute;
-  width: ${props => props.size * 0.8}px;
-  height: ${props => props.size * 0.8}px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, ${props => props.color}, ${props => props.colorDark});
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.3),
-    inset 0 -2px 5px rgba(0, 0, 0, 0.2);
-  animation: ${bounce} ${props => props.duration}s cubic-bezier(0.36, 0, 0.66, -0.56) infinite;
-  animation-delay: ${props => props.delay}s;
-  top: ${props => props.top}%;
-  left: ${props => props.left}%;
-  z-index: 0;
-  opacity: 0.8;
-  transform-style: preserve-3d;
-  will-change: transform;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: ${props => props.color}40;
-    border-radius: 50%;
-    z-index: -1;
-    animation: ${ripple} 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    animation-delay: ${props => props.delay * 0.5}s;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 30%;
-    height: 30%;
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    filter: blur(2px);
-    transition: all 0.3s ease;
-  }
-
-  &:hover {
-    transform: scale(1.2) translateZ(20px) rotate(5deg);
-    animation-play-state: paused;
-    &::before {
-      animation-play-state: paused;
-    }
-    &::after {
-      transform: scale(1.2) translate(-10%, -10%);
-      opacity: 0.6;
-    }
-  }
-`;
-
 const GridCell = styled.div`
   background: ${props => {
     if (props.active) return props.color;
@@ -629,10 +552,10 @@ const GridCell = styled.div`
   &::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
     border-radius: 2px;
     background: ${props => props.active ? `${props.color}40` : 'transparent'};
     animation: ${props => props.active ? ripple : 'none'} 1.5s ease-out infinite;
@@ -780,6 +703,7 @@ const PLAYER_COLORS = {
   1: '#ff5252', // Red
   2: '#4285f4', // Blue
   3: '#8bc34a', // Green
+  4: '#ffeb3b', // Yellow
 };
 
 const MoonIcon = () => (
@@ -862,7 +786,6 @@ const adjustColor = (color, amount) => {
 const WelcomePage = ({ onEnter, theme, setTheme }) => {
   const [selectedGridSize, setSelectedGridSize] = useState({ rows: 6, cols: 6 });
   const [selectedPlayerCount, setSelectedPlayerCount] = useState(2);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeCell, setActiveCell] = useState(null);
   const [showRules, setShowRules] = useState(false);
 
@@ -875,21 +798,7 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
     { label: '15x10', rows: 15, cols: 10 }
   ];
 
-  const playerCountOptions = [2, 3];
-
-  const handleMouseMove = useCallback((e) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    setMousePosition({
-      x: (clientX / innerWidth) * 100,
-      y: (clientY / innerHeight) * 100
-    });
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [handleMouseMove]);
+  const playerCountOptions = [2, 3, 4];
 
   const handleStartGame = () => {
     onEnter({
@@ -921,15 +830,13 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
         const isActive = activeCell?.row === i && activeCell?.col === j;
         const capacity = getCellCapacity(i, j, selectedGridSize.rows, selectedGridSize.cols);
         const isCritical = isActive && capacity > 1; // Show critical state on hover
-
+        
         cells.push(
           <GridCell
             key={`${i}-${j}`}
-            active={isActive}
+            capacity={capacity}
             isCritical={isCritical}
             color={PLAYER_COLORS[1]}
-            capacity={capacity}
-            delay={(i + j) * 50}
             theme={theme}
             onMouseEnter={() => setActiveCell({ row: i, col: j })}
             onMouseLeave={() => setActiveCell(null)}
@@ -949,18 +856,6 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
       >
         {theme === 'light' ? <MoonIcon /> : <SunIcon />}
       </ThemeToggleButton>
-      {[...Array(3)].map((_, i) => (
-        <FloatingOrb
-          key={i}
-          size={60 - i * 10}
-          color={PLAYER_COLORS[(i % 3) + 1]}
-          colorDark={PLAYER_COLORS[(i % 3) + 1]}
-          duration={4 + i}
-          delay={i}
-          top={20 + (mousePosition.y * 0.1) + (i * 10)}
-          left={15 + (mousePosition.x * 0.1) + (i * 12)}
-        />
-      ))}
       
       <Content theme={theme}>
         <Title theme={theme}>Chain Reaction</Title>
@@ -1020,7 +915,10 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
           </SettingsSection>
 
           <ButtonContainer>
-            <Button primary onClick={handleStartGame}>
+            <Button 
+              onClick={handleStartGame}
+              theme={theme}
+            >
               Start Game
             </Button>
             <Button 
@@ -1054,8 +952,8 @@ const WelcomePage = ({ onEnter, theme, setTheme }) => {
                   <ul>
                     <li>Players take turns placing one orb in any cell</li>
                     <li>You can only place orbs in empty cells or cells you own</li>
-                    <li>Each player has their own color (Red, Blue, or Green)</li>
-                    <li>The game supports 2-3 players</li>
+                    <li>Each player has their own color (Red, Blue, Green, or Yellow)</li>
+                    <li>The game supports 2-4 players</li>
                   </ul>
                 </RuleItem>
 
