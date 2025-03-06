@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Game from './components/Game';
 import WelcomePage from './components/WelcomePage';
 import FloatingBubblesPage from './components/FloatingBubblesPage';
-import { PlayerProvider } from './context/PlayerContext';
 import './App.css';
 
 // Define a consistent color theme
@@ -40,9 +39,7 @@ function App() {
     isPlaying: false,
     gridSize: { rows: 6, cols: 6 },
     playerCount: 2,
-    showWelcome: true,
-    isMultiplayer: false,
-    room: null
+    showWelcome: true
   });
   const [theme, setTheme] = useState('dark');
 
@@ -51,9 +48,7 @@ function App() {
       isPlaying: true,
       gridSize: settings?.gridSize || gameState.gridSize,
       playerCount: settings?.playerCount || gameState.playerCount,
-      showWelcome: false,
-      isMultiplayer: settings?.isMultiplayer || false,
-      room: settings?.room || null
+      showWelcome: false
     });
   };
 
@@ -65,36 +60,32 @@ function App() {
   };
 
   return (
-    <PlayerProvider>
-      <AppContainer theme={theme}>
-        {gameState.isPlaying ? (
-          <Game 
-            initialGridSize={gameState.gridSize}
-            initialPlayerCount={gameState.playerCount}
-            theme={theme}
-            setTheme={setTheme}
-            themeColors={THEME_COLORS}
-            isMultiplayer={gameState.isMultiplayer}
-            room={gameState.room}
-          />
-        ) : gameState.showWelcome ? (
-          <FloatingBubblesPage 
-            title="Chain Reaction"
-            onEnter={handleStartClick}
-            theme={theme}
-            setTheme={setTheme}
-            themeColors={THEME_COLORS}
-          />
-        ) : (
-          <WelcomePage 
-            onEnter={handleEnterGame} 
-            theme={theme}
-            setTheme={setTheme}
-            themeColors={THEME_COLORS}
-          />
-        )}
-      </AppContainer>
-    </PlayerProvider>
+    <AppContainer theme={theme}>
+      {gameState.isPlaying ? (
+        <Game 
+          initialGridSize={gameState.gridSize}
+          initialPlayerCount={gameState.playerCount}
+          theme={theme}
+          setTheme={setTheme}
+          themeColors={THEME_COLORS}
+        />
+      ) : gameState.showWelcome ? (
+        <FloatingBubblesPage 
+          title="Chain Reaction"
+          onEnter={handleStartClick}
+          theme={theme}
+          setTheme={setTheme}
+          themeColors={THEME_COLORS}
+        />
+      ) : (
+        <WelcomePage 
+          onEnter={handleEnterGame} 
+          theme={theme}
+          setTheme={setTheme}
+          themeColors={THEME_COLORS}
+        />
+      )}
+    </AppContainer>
   );
 }
 
